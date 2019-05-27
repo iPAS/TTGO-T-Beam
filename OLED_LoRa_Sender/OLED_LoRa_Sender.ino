@@ -36,7 +36,8 @@ void setup() {
   
   SPI.begin(SCK,MISO,MOSI,SS);
   LoRa.setPins(SS,RST,DI0);
-  if (!LoRa.begin(868E6)) {
+//   if (!LoRa.begin(868E6)) {
+  if (!LoRa.begin(923E6)) {
     Serial.println("Starting LoRa failed!");
     while (1);
   }
@@ -65,10 +66,10 @@ void loop() {
   LoRa.print("hello ");
   LoRa.print(counter);
   LoRa.endPacket();
-
   counter++;
-  digitalWrite(2, HIGH);   // turn the LED on (HIGH is the voltage level)
+
+  digitalWrite(14, HIGH);   // turn the LED on (HIGH is the voltage level)
   delay(1000);                       // wait for a second
-  digitalWrite(2, LOW);    // turn the LED off by making the voltage LOW
+  digitalWrite(14, LOW);    // turn the LED off by making the voltage LOW
   delay(1000);                       // wait for a second
 }

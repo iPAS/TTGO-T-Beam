@@ -1,0 +1,7 @@
+{
+    "board": "espressif:esp32:t-beam",
+    "configuration": "PSRAM=disabled,FlashFreq=80,UploadSpeed=921600,DebugLevel=none",
+    "port": "/dev/ttyUSB0",
+    "output": "tmp",
+    "sketch": "Blink.ino"
+}

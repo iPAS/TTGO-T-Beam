@@ -1,0 +1,23 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "/home/ipas/Workspace/Arduino/hardware/espressif/esp32/**",
+                "~/Workspace/Arduino/libraries/**",
+                "~/Development/arduino-nightly/libraries/**",
+                "~/Workspace/Arduino/hardware/espressif/esp32/libraries/**",
+                "~/Workspace/Arduino/hardware/espressif/esp32/tools/sdk/include/**",
+                "~/Workspace/Arduino/hardware/espressif/esp32/cores/**"
+            ],
+            "browse": {
+                "limitSymbolsToIncludedHeaders": false,
+                "path": []
+            },
+            "intelliSenseMode": "clang-x64",
+            "defines": [],
+            "forcedInclude": []
+        }
+    ],
+    "version": 4
+}
