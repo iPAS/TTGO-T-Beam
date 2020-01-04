@@ -43,7 +43,8 @@ void setup() {
             ;
     }
 
-
+    LoRa.setTxPower(20);    // Set maximum Tx power to 20 dBm (17 is default).
+                            // https://github.com/sandeepmistry/arduino-LoRa/blob/master/API.md#tx-power
 
     // LoRa.onReceive(cbk);
     //  LoRa.receive();
