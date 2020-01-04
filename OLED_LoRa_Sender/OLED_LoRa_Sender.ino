@@ -42,6 +42,9 @@ void setup() {
         while (1)
             ;
     }
+
+
+
     // LoRa.onReceive(cbk);
     //  LoRa.receive();
     Serial.println("init ok");
@@ -64,7 +67,7 @@ void loop() {
 
     // send packet
     LoRa.beginPacket();
-    LoRa.print("hello ");
+    LoRa.printf("Hello! I'm %04X", ESP.getEfuseMac());
     LoRa.print(counter);
     LoRa.endPacket();
     counter++;
