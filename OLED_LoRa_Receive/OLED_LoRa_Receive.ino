@@ -3,6 +3,7 @@
 #include <Wire.h>
 #include "SSD1306.h"
 #include "images.h"
+#include <TinyGPS++.h>
 
 #define SCK 5    // GPIO5  -- SX1278's SCK
 #define MISO 19  // GPIO19 -- SX1278's MISO
@@ -18,6 +19,9 @@ SSD1306 display(0x3C, 21, 22);
 String  rssi     = "RSSI --";
 String  packSize = "--";
 String  packet;
+
+TinyGPSPlus gps;
+HardwareSerial GPS_Serial1(1);
 
 void loraData() {
     display.clear();
