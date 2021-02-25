@@ -68,7 +68,7 @@ void loop() {
 
     // send packet
     LoRa.beginPacket();
-    LoRa.printf("From %04X #", ESP.getEfuseMac());
+    LoRa.printf("<%04X> #", ESP.getEfuseMac());
     LoRa.print(counter);
     LoRa.endPacket();
     counter++;
