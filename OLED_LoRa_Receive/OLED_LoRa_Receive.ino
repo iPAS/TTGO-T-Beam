@@ -6,7 +6,13 @@
 #include <TinyGPS++.h>
 #include <axp20x.h>
 
+// #define TBEAM_V1
+
+#ifndef TBEAM_V1
 #define LED_IO 14  // 4 -- V1.0
+#else
+#define LED_IO 4
+#endif
 
 #define LORA_SCK  5   // GPIO5  -- SX1278's SCK
 #define LORA_MISO 19  // GPIO19 -- SX1278's MISO
@@ -25,8 +31,14 @@ String  packSize = "--";
 String  packet   = "";
 
 #define GPS_BAUDRATE 9600
+
+#ifndef TBEAM_V1
 #define GPS_TX 12  // 34 -- V1.0
 #define GPS_RX 15  // 12 -- V1.0
+#else
+#define GPS_TX 34
+#define GPS_RX 12
+#endif
 
 TinyGPSPlus gps;
 HardwareSerial GPS_Serial1(1);
@@ -104,13 +116,15 @@ void setup() {
     display.flipScreenVertically();
     display.setFont(ArialMT_Plain_10);
 
+    #ifdef TBEAM_1
     // -- V1.0
-    // axp.setPowerOutPut(AXP192_LDO2, AXP202_ON);  // LORA radio
-    // axp.setPowerOutPut(AXP192_LDO3, AXP202_ON);  // GPS main power
-    // axp.setPowerOutPut(AXP192_DCDC2, AXP202_ON);
-    // axp.setPowerOutPut(AXP192_EXTEN, AXP202_ON);
-    // axp.setPowerOutPut(AXP192_DCDC1, AXP202_ON);
-    // axp.setDCDC1Voltage(3300);  // for the OLED power
+    axp.setPowerOutPut(AXP192_LDO2, AXP202_ON);  // LORA radio
+    axp.setPowerOutPut(AXP192_LDO3, AXP202_ON);  // GPS main power
+    axp.setPowerOutPut(AXP192_DCDC2, AXP202_ON);
+    axp.setPowerOutPut(AXP192_EXTEN, AXP202_ON);
+    axp.setPowerOutPut(AXP192_DCDC1, AXP202_ON);
+    axp.setDCDC1Voltage(3300);  // for the OLED power
+    #endif
 
     // GPS
     GPS_Serial1.begin(GPS_BAUDRATE, SERIAL_8N1, GPS_TX, GPS_RX);

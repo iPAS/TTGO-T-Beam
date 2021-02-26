@@ -4,8 +4,13 @@
 #include "SSD1306.h"
 #include "images.h"
 
-// TBeam V0.7
-#define LED_IO 14
+// #define TBEAM_V1
+
+#ifndef TBEAM_V1
+#define LED_IO 14  // 4 -- V1.0
+#else
+#define LED_IO 4
+#endif
 
 #define LORA_SCK  5   // GPIO5  -- SX1278's SCK
 #define LORA_MISO 19  // GPIO19 -- SX1278's MISO
