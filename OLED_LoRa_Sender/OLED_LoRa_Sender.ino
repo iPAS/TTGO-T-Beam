@@ -24,6 +24,10 @@ String  rssi     = "RSSI --";
 String  packSize = "--";
 String  packet;
 
+void onTxDone() {
+    Serial.println(counter);
+}
+
 void setup() {
     pinMode(LED_IO, OUTPUT);
     digitalWrite(LED_IO, LOW);
@@ -42,11 +46,18 @@ void setup() {
             ;
     }
 
-    LoRa.setTxPower(20);    // Set maximum Tx power to 20 dBm (17 is default).
-                            // https://github.com/sandeepmistry/arduino-LoRa/blob/master/API.md#tx-power
+    LoRa.setSpreadingFactor(12);  // ranges from 6-12, default 7 see API docs. Changed for ver 0.1 Glacierjay
+    // LoRa.setSignalBandwidth(7.8E3);  // signalBandwidth - signal bandwidth in Hz, defaults to 125E3.
+                                     // Supported values are 7.8E3, 10.4E3, 15.6E3, 20.8E3, 31.25E3, 41.7E3, 62.5E3, 125E3, 250E3, and 500E3.
+    LoRa.setTxPower(20, PA_OUTPUT_PA_BOOST_PIN);  // Set maximum Tx power to 20 dBm (17 is default).
+                                                  // https://github.com/sandeepmistry/arduino-LoRa/blob/master/API.md#tx-power
+    // LoRa.setGain(0);  // Supported values are between 0 and 6. If gain is 0, AGC will be enabled and LNA gain will not be used. 
+                      // Else if gain is from 1 to 6, AGC will be disabled and LNA gain will be used.
+
+    LoRa.onTxDone(onTxDone);
 
     // LoRa.onReceive(cbk);
-    //  LoRa.receive();
+    // LoRa.receive();
     Serial.println("init ok");
     display.init();
     display.flipScreenVertically();
@@ -73,7 +84,7 @@ void loop() {
     counter++;
 
     uint8_t i;
-    for (i=0; i<3; i++) {
+    for (i=0; i<2; i++) {
         digitalWrite(LED_IO, HIGH);  // turn the LED on (HIGH is the voltage level)
         delay(500);              // wait for a second
         digitalWrite(LED_IO, LOW);   // turn the LED off by making the voltage LOW

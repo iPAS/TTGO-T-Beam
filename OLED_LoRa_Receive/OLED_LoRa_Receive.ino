@@ -20,6 +20,7 @@
 
 SSD1306 display(0x3C, 21, 22);
 String  rssi     = "RSSI --";
+String  snr      = "SNR --";
 String  packSize = "--";
 String  packet   = "";
 
@@ -39,12 +40,14 @@ void loraData() {
     display.clear();
     display.setTextAlignment(TEXT_ALIGN_LEFT);
     display.setFont(ArialMT_Plain_10);
-    display.drawString(0, 15, "Received " + packSize + " bytes");
+
+    display.drawString(0, 0, rssi + ", " + snr);
+    display.drawString(0, 15, "Recv: " + packSize + " bytes");
     display.drawStringMaxWidth(0, 26, 128, packet);
-    display.drawString(0, 0, rssi);
+
     display.display();
 
-    Serial.println(gps_time + ", " + gps_loc + ", " + rssi + ", " + packet);
+    Serial.println(gps_time + ", " + gps_loc + ", " + rssi + ", " + snr + ", " + packet);
 }
 
 void cbk(int packetSize) {
@@ -53,7 +56,10 @@ void cbk(int packetSize) {
     for (int i = 0; i < packetSize; i++) {
         packet += (char)LoRa.read();
     }
+
     rssi = "RSSI " + String(LoRa.packetRssi(), DEC);
+    snr  = "SNR "  + String(LoRa.packetSnr(), 2);
+
     loraData();
 }
 
@@ -82,6 +88,15 @@ void setup() {
         while (1)
             ;
     }
+
+    LoRa.setSpreadingFactor(12);  // ranges from 6-12, default 7 see API docs. Changed for ver 0.1 Glacierjay
+    // LoRa.setSignalBandwidth(7.8E3);  // signalBandwidth - signal bandwidth in Hz, defaults to 125E3.
+                                     // Supported values are 7.8E3, 10.4E3, 15.6E3, 20.8E3, 31.25E3, 41.7E3, 62.5E3, 125E3, 250E3, and 500E3.
+    // LoRa.setTxPower(20, PA_OUTPUT_PA_BOOST_PIN);  // Set maximum Tx power to 20 dBm (17 is default).
+                                                  // https://github.com/sandeepmistry/arduino-LoRa/blob/master/API.md#tx-power
+    // LoRa.setGain(0);  // Supported values are between 0 and 6. If gain is 0, AGC will be enabled and LNA gain will not be used. 
+                      // Else if gain is from 1 to 6, AGC will be disabled and LNA gain will be used.
+
     // LoRa.onReceive(cbk);
     LoRa.receive();
     Serial.println("init ok");
@@ -89,14 +104,16 @@ void setup() {
     display.flipScreenVertically();
     display.setFont(ArialMT_Plain_10);
 
-    // axp.setPowerOutPut(AXP192_LDO2, AXP202_ON);  // -- V1.0
-    // axp.setPowerOutPut(AXP192_LDO3, AXP202_ON);
+    // -- V1.0
+    // axp.setPowerOutPut(AXP192_LDO2, AXP202_ON);  // LORA radio
+    // axp.setPowerOutPut(AXP192_LDO3, AXP202_ON);  // GPS main power
     // axp.setPowerOutPut(AXP192_DCDC2, AXP202_ON);
     // axp.setPowerOutPut(AXP192_EXTEN, AXP202_ON);
     // axp.setPowerOutPut(AXP192_DCDC1, AXP202_ON);
+    // axp.setDCDC1Voltage(3300);  // for the OLED power
 
     // GPS
-    GPS_Serial1.begin(GPS_BAUDRATE, SERIAL_8N1, GPS_TX, GPS_RX);  // 17-TX 18-RX
+    GPS_Serial1.begin(GPS_BAUDRATE, SERIAL_8N1, GPS_TX, GPS_RX);
 
     smartDelay(1500);
 }
