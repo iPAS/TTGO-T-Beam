@@ -3,15 +3,10 @@
 #include <Wire.h>
 #include <SSD1306.h>
 #include "images.h"
-
 #include <TinyGPS++.h>
+#include <axp20x.h>
 
-#include <SoftwareSerial.h>  // -- V1.0
-#include <axp20x.h>          // -- V1.0
-
-
-// TBeam V0.7
-#define LED_IO 14
+#define LED_IO 14  // 4 -- V1.0
 
 #define LORA_SCK  5   // GPIO5  -- SX1278's SCK
 #define LORA_MISO 19  // GPIO19 -- SX1278's MISO
@@ -34,12 +29,11 @@ String  packet   = "";
 
 TinyGPSPlus gps;
 HardwareSerial GPS_Serial1(1);
-// SoftwareSerial GPS_Serial1(GPS_TX, GPS_RX);  // -- V1.0
 
 String gps_time = "T --";
 String gps_loc  = "SAT --, LAT --, LON --, ALT --";
 
-AXP20X_Class axp;  // -- V1.0
+AXP20X_Class axp;
 
 void loraData() {
     display.clear();
@@ -63,12 +57,16 @@ void cbk(int packetSize) {
     loraData();
 }
 
-void setup() {
-    pinMode(16, OUTPUT);
-    digitalWrite(16, LOW);  // set GPIO16 low to reset OLED
-    delay(50);
-    digitalWrite(16, HIGH);  // while OLED is running, must set GPIO16 in high、
+void smartDelay(unsigned long ms) {
+    unsigned long start = millis();
+    do {
+        while (GPS_Serial1.available() > 0) {
+            gps.encode(GPS_Serial1.read());
+        }
+    } while (millis() - start < ms);
+}
 
+void setup() {
     pinMode(LED_IO, OUTPUT);
     digitalWrite(LED_IO, LOW);
 
@@ -91,21 +89,16 @@ void setup() {
     display.flipScreenVertically();
     display.setFont(ArialMT_Plain_10);
 
+    // axp.setPowerOutPut(AXP192_LDO2, AXP202_ON);  // -- V1.0
+    // axp.setPowerOutPut(AXP192_LDO3, AXP202_ON);
+    // axp.setPowerOutPut(AXP192_DCDC2, AXP202_ON);
+    // axp.setPowerOutPut(AXP192_EXTEN, AXP202_ON);
+    // axp.setPowerOutPut(AXP192_DCDC1, AXP202_ON);
+
     // GPS
-    // axp.setPowerOutPut(AXP192_LDO3, AXP202_ON);  // -- V1.0
     GPS_Serial1.begin(GPS_BAUDRATE, SERIAL_8N1, GPS_TX, GPS_RX);  // 17-TX 18-RX
-    // GPS_Serial1.begin(GPS_BAUDRATE);  // -- V1.0
 
-    delay(1500);
-}
-
-void smartDelay(unsigned long ms) {
-    unsigned long start = millis();
-    do {
-        while (GPS_Serial1.available() > 0) {
-            gps.encode(GPS_Serial1.read());
-        }
-    } while (millis() - start < ms);
+    smartDelay(1500);
 }
 
 void loop() {

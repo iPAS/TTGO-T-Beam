@@ -25,12 +25,6 @@ String  packSize = "--";
 String  packet;
 
 void setup() {
-    pinMode(2, OUTPUT);
-    pinMode(16, OUTPUT);
-    digitalWrite(16, LOW);  // set GPIO16 low to reset OLED
-    delay(50);
-    digitalWrite(16, HIGH);  // while OLED is running, must set GPIO16 in high
-
     pinMode(LED_IO, OUTPUT);
     digitalWrite(LED_IO, LOW);
 
