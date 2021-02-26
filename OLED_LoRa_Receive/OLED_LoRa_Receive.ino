@@ -69,6 +69,9 @@ void setup() {
     delay(50);
     digitalWrite(16, HIGH);  // while OLED is running, must set GPIO16 in high、
 
+    pinMode(LED_IO, OUTPUT);
+    digitalWrite(LED_IO, LOW);
+
     Serial.begin(115200);
     while (!Serial)
         ;
