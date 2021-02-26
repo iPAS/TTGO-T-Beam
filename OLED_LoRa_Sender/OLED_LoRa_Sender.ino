@@ -4,12 +4,15 @@
 #include "SSD1306.h"
 #include "images.h"
 
-#define SCK 5    // GPIO5  -- SX1278's SCK
-#define MISO 19  // GPIO19 -- SX1278's MISnO
-#define MOSI 27  // GPIO27 -- SX1278's MOSI
-#define SS 18    // GPIO18 -- SX1278's CS
-#define RST 14   // GPIO14 -- SX1278's RESET
-#define DI0 26   // GPIO26 -- SX1278's IRQ(Interrupt Request)
+// TBeam V0.7
+#define LED_IO 14
+
+#define LORA_SCK  5   // GPIO5  -- SX1278's SCK
+#define LORA_MISO 19  // GPIO19 -- SX1278's MISO
+#define LORA_MOSI 27  // GPIO27 -- SX1278's MOSI
+#define LORA_SS   18  // GPIO18 -- SX1278's CS
+#define LORA_DI0  26  // GPIO26 -- SX1278's IRQ(Interrupt Request)
+#define LORA_RST  23  // GPIO23 -- SX1278's RESET
 
 //#define BAND  868E6
 #define BAND 923E6
@@ -35,8 +38,8 @@ void setup() {
     Serial.println();
     Serial.println("LoRa Sender Test");
 
-    SPI.begin(SCK, MISO, MOSI, SS);
-    LoRa.setPins(SS, RST, DI0);
+    SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_SS);
+    LoRa.setPins(LORA_SS, LORA_RST, LORA_DI0);
     if (!LoRa.begin(BAND)) {
         Serial.println("Starting LoRa failed!");
         while (1)
@@ -73,8 +76,11 @@ void loop() {
     LoRa.endPacket();
     counter++;
 
-    digitalWrite(14, HIGH);  // turn the LED on (HIGH is the voltage level)
-    delay(500);              // wait for a second
-    digitalWrite(14, LOW);   // turn the LED off by making the voltage LOW
-    delay(500);              // wait for a second
+    uint8_t i;
+    for (i=0; i<3; i++) {
+        digitalWrite(LED_IO, HIGH);  // turn the LED on (HIGH is the voltage level)
+        delay(500);              // wait for a second
+        digitalWrite(LED_IO, LOW);   // turn the LED off by making the voltage LOW
+        delay(500);              // wait for a second
+    }
 }

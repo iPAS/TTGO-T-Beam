@@ -1,16 +1,24 @@
 #include <SPI.h>
 #include <LoRa.h>
 #include <Wire.h>
-#include <TinyGPS++.h>
 #include <SSD1306.h>
 #include "images.h"
 
-#define SCK 5    // GPIO5  -- SX1278's SCK
-#define MISO 19  // GPIO19 -- SX1278's MISO
-#define MOSI 27  // GPIO27 -- SX1278's MOSI
-#define SS 18    // GPIO18 -- SX1278's CS
-#define RST 14   // GPIO14 -- SX1278's RESET
-#define DI0 26   // GPIO26 -- SX1278's IRQ(Interrupt Request)
+#include <TinyGPS++.h>
+
+#include <SoftwareSerial.h>  // -- V1.0
+#include <axp20x.h>          // -- V1.0
+
+
+// TBeam V0.7
+#define LED_IO 14
+
+#define LORA_SCK  5   // GPIO5  -- SX1278's SCK
+#define LORA_MISO 19  // GPIO19 -- SX1278's MISO
+#define LORA_MOSI 27  // GPIO27 -- SX1278's MOSI
+#define LORA_SS   18  // GPIO18 -- SX1278's CS
+#define LORA_DI0  26  // GPIO26 -- SX1278's IRQ(Interrupt Request)
+#define LORA_RST  23  // GPIO23 -- SX1278's RESET
 
 //#define BAND    868E6
 #define BAND 923E6
@@ -20,13 +28,18 @@ String  rssi     = "RSSI --";
 String  packSize = "--";
 String  packet   = "";
 
+#define GPS_BAUDRATE 9600
+#define GPS_TX 12  // 34 -- V1.0
+#define GPS_RX 15  // 12 -- V1.0
+
 TinyGPSPlus gps;
 HardwareSerial GPS_Serial1(1);
-#define GPS_BAUDRATE 9600
-#define GPS_TX 12
-#define GPS_RX 15
+// SoftwareSerial GPS_Serial1(GPS_TX, GPS_RX);  // -- V1.0
+
 String gps_time = "T --";
 String gps_loc  = "SAT --, LAT --, LON --, ALT --";
+
+AXP20X_Class axp;  // -- V1.0
 
 void loraData() {
     display.clear();
@@ -61,8 +74,8 @@ void setup() {
         ;
     Serial.println();
     Serial.println("LoRa Receiver Callback");
-    SPI.begin(SCK, MISO, MOSI, SS);
-    LoRa.setPins(SS, RST, DI0);
+    SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_SS);
+    LoRa.setPins(LORA_SS, LORA_RST, LORA_DI0);
     if (!LoRa.begin(BAND)) {
         Serial.println("Starting LoRa failed!");
         while (1)
@@ -76,7 +89,9 @@ void setup() {
     display.setFont(ArialMT_Plain_10);
 
     // GPS
+    // axp.setPowerOutPut(AXP192_LDO3, AXP202_ON);  // -- V1.0
     GPS_Serial1.begin(GPS_BAUDRATE, SERIAL_8N1, GPS_TX, GPS_RX);  // 17-TX 18-RX
+    // GPS_Serial1.begin(GPS_BAUDRATE);  // -- V1.0
 
     delay(1500);
 }
@@ -91,16 +106,16 @@ void smartDelay(unsigned long ms) {
 }
 
 void loop() {
-    digitalWrite(14, HIGH);  // turn the LED on (HIGH is the voltage level)
+    digitalWrite(LED_IO, HIGH);  // turn the LED on (HIGH is the voltage level)
     smartDelay(500);
 
     if (gps.satellites.isValid() && gps.time.isUpdated() && gps.location.isValid()) {
         // "T --, SAT --, LAT --, LON --, ALT --, ";
         gps_time = "T " + String(gps.time.hour()) + ":" + String(gps.time.minute()) + ":" + String(gps.time.second());
-        gps_loc  = "SAT " + gps.satellites.value();
-        gps_loc  = gps_loc + ", " + "LAT " + gps.location.lat();
-        gps_loc  = gps_loc + ", " + "LON " + gps.location.lng();
-        gps_loc  = gps_loc + ", " + "ALT " + gps.altitude.meters();
+        gps_loc  = "SAT " + String(gps.satellites.value());
+        gps_loc  = gps_loc + ", " + "LAT " + String(gps.location.lat());
+        gps_loc  = gps_loc + ", " + "LON " + String(gps.location.lng());
+        gps_loc  = gps_loc + ", " + "ALT " + String(gps.altitude.meters());
     }
 
     int packetSize = LoRa.parsePacket();
@@ -108,6 +123,6 @@ void loop() {
         cbk(packetSize);
     }
 
-    digitalWrite(14, LOW);   // turn the LED off by making the voltage LOW
+    digitalWrite(LED_IO, LOW);   // turn the LED off by making the voltage LOW
     smartDelay(500);
 }
