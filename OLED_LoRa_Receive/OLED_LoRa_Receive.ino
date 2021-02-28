@@ -5,8 +5,12 @@
 #include "images.h"
 #include <TinyGPS++.h>
 #include <axp20x.h>
+#include <SoftwareSerial.h>
 
+
+// T-Beam version selection. Differnt version has different hardware design.
 // #define TBEAM_V1
+
 
 #ifndef TBEAM_V1
 #define LED_IO 14  // 4 -- V1.0
@@ -40,9 +44,13 @@ String  packet   = "";
 #define GPS_RX 12
 #endif
 
-TinyGPSPlus gps;
+#ifndef TBEAM_V1
 HardwareSerial GPS_Serial1(1);
+#else
+SoftwareSerial GPS_Serial1(GPS_RX, GPS_TX);
+#endif
 
+TinyGPSPlus gps;
 String gps_time = "T --";
 String gps_loc  = "SAT --, LAT --, LON --, ALT --";
 
@@ -127,8 +135,11 @@ void setup() {
     #endif
 
     // GPS
+    #ifndef TBEAM_V1
     GPS_Serial1.begin(GPS_BAUDRATE, SERIAL_8N1, GPS_TX, GPS_RX);
-
+    #else
+    GPS_Serial1.begin(GPS_BAUDRATE);
+    #endif
     smartDelay(1500);
 }
 
