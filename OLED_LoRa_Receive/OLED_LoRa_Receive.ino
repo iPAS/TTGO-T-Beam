@@ -1,19 +1,17 @@
 #include <SPI.h>
 #include <LoRa.h>
-#include <Wire.h>
 #include <SSD1306.h>
 #include "images.h"
 #include <TinyGPS++.h>
 #include <axp20x.h>
-#include <SoftwareSerial.h>
 
 
 // T-Beam version selection. Differnt version has different hardware design.
-// #define TBEAM_V1
+#define TBEAM_V07
 
 
-#ifndef TBEAM_V1
-#define LED_IO 14  // 4 -- V1.0
+#ifdef TBEAM_V07
+#define LED_IO 14
 #else
 #define LED_IO 4
 #endif
@@ -36,18 +34,12 @@ String  packet   = "";
 
 #define GPS_BAUDRATE 9600
 
-#ifndef TBEAM_V1
-#define GPS_TX 12  // 34 -- V1.0
-#define GPS_RX 15  // 12 -- V1.0
-#else
-#define GPS_TX 34
+#ifdef TBEAM_V07
+#define GPS_TX 15
 #define GPS_RX 12
-#endif
-
-#ifndef TBEAM_V1
-HardwareSerial GPS_Serial1(1);
 #else
-SoftwareSerial GPS_Serial1(GPS_RX, GPS_TX);
+#define GPS_TX 12
+#define GPS_RX 34
 #endif
 
 TinyGPSPlus gps;
@@ -55,6 +47,9 @@ String gps_time = "T --";
 String gps_loc  = "SAT --, LAT --, LON --, ALT --";
 
 AXP20X_Class axp;
+#define AXP_SDA 21
+#define AXP_SCL 22
+#define AXP_IRQ 35
 
 void loraData() {
     display.clear();
@@ -86,8 +81,8 @@ void cbk(int packetSize) {
 void smartDelay(unsigned long ms) {
     unsigned long start = millis();
     do {
-        while (GPS_Serial1.available() > 0) {
-            gps.encode(GPS_Serial1.read());
+        while (Serial1.available() > 0) {
+            gps.encode(Serial1.read());
         }
     } while (millis() - start < ms);
 }
@@ -97,16 +92,14 @@ void setup() {
     digitalWrite(LED_IO, LOW);
 
     Serial.begin(115200);
-    while (!Serial)
-        ;
+    while (!Serial);
     Serial.println();
-    Serial.println("LoRa Receiver Callback");
+
     SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_SS);
     LoRa.setPins(LORA_SS, LORA_RST, LORA_DI0);
     if (!LoRa.begin(BAND)) {
         Serial.println("Starting LoRa failed!");
-        while (1)
-            ;
+        while (1);
     }
 
     LoRa.setSpreadingFactor(12);  // ranges from 6-12, default 7 see API docs. Changed for ver 0.1 Glacierjay
@@ -119,27 +112,33 @@ void setup() {
 
     // LoRa.onReceive(cbk);
     LoRa.receive();
-    Serial.println("init ok");
+    Serial.println("LoRa ok");
     display.init();
     display.flipScreenVertically();
     display.setFont(ArialMT_Plain_10);
 
-    #ifdef TBEAM_1
-    // -- V1.0
+    #ifndef TBEAM_V07
+    Wire.begin(AXP_SDA, AXP_SCL);
+    if (axp.begin(Wire, AXP192_SLAVE_ADDRESS) == AXP_FAIL) {
+        Serial.println("Starting AXP192 failed!");
+        while (1);
+    }
+
+    axp.setLDO2Voltage(3300);   // LoRa VDD
+    axp.setLDO3Voltage(3300);   // GPS  VDD
     axp.setPowerOutPut(AXP192_LDO2, AXP202_ON);  // LORA radio
     axp.setPowerOutPut(AXP192_LDO3, AXP202_ON);  // GPS main power
+
+    axp.setDCDC1Voltage(3300);  // for the OLED power
+    axp.setPowerOutPut(AXP192_DCDC1, AXP202_ON);
+
     axp.setPowerOutPut(AXP192_DCDC2, AXP202_ON);
     axp.setPowerOutPut(AXP192_EXTEN, AXP202_ON);
-    axp.setPowerOutPut(AXP192_DCDC1, AXP202_ON);
-    axp.setDCDC1Voltage(3300);  // for the OLED power
     #endif
 
     // GPS
-    #ifndef TBEAM_V1
-    GPS_Serial1.begin(GPS_BAUDRATE, SERIAL_8N1, GPS_TX, GPS_RX);
-    #else
-    GPS_Serial1.begin(GPS_BAUDRATE);
-    #endif
+    Serial1.begin(GPS_BAUDRATE, SERIAL_8N1, GPS_RX, GPS_TX);
+    while (!Serial1);
     smartDelay(1500);
 }
 
