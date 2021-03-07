@@ -1,3 +1,4 @@
+#include <strings.h>
 #include <SPI.h>
 #include <LoRa.h>
 #include <SSD1306.h>
@@ -43,7 +44,7 @@ String  packet   = "";
 #endif
 
 TinyGPSPlus gps;
-String gps_time = "T --";
+String gps_datetime = "@ --";
 String gps_loc  = "SAT --, LAT --, LON --, ALT --";
 
 AXP20X_Class axp;
@@ -62,7 +63,7 @@ void loraData() {
 
     display.display();
 
-    Serial.println(gps_time + ", " + gps_loc + ", " + rssi + ", " + snr + ", " + packet);
+    Serial.println(gps_datetime + ", " + gps_loc + ", " + rssi + ", " + snr + ", " + packet);
 }
 
 void cbk(int packetSize) {
@@ -147,11 +148,19 @@ void loop() {
     smartDelay(500);
 
     if (gps.satellites.isValid() && gps.time.isUpdated() && gps.location.isValid()) {
+        // Example: http://arduiniana.org/libraries/tinygpsplus/
         // "T --, SAT --, LAT --, LON --, ALT --, ";
-        gps_time = "T " + String(gps.time.hour()) + ":" + String(gps.time.minute()) + ":" + String(gps.time.second());
+        // gps_datetime = "@ "         + String(gps.date.day())  + ":" + String(gps.date.month())  + ":" + String(gps.date.year()) + " ";
+        // gps_datetime = gps_datetime + String(gps.time.hour()) + ":" + String(gps.time.minute()) + ":" + String(gps.time.second());
+        char s_datetime[25];
+        sprintf(s_datetime, "@ %02u-%02u-%04u %02u:%02u:%02u",
+            gps.date.day(),  gps.date.month(),  gps.date.year(), 
+            gps.time.hour(), gps.time.minute(), gps.time.second());
+        gps_datetime = String(s_datetime);
+
         gps_loc  = "SAT " + String(gps.satellites.value());
-        gps_loc  = gps_loc + ", " + "LAT " + String(gps.location.lat());
-        gps_loc  = gps_loc + ", " + "LON " + String(gps.location.lng());
+        gps_loc  = gps_loc + ", " + "LAT " + String(gps.location.lat(), 6);
+        gps_loc  = gps_loc + ", " + "LON " + String(gps.location.lng(), 6);
         gps_loc  = gps_loc + ", " + "ALT " + String(gps.altitude.meters());
     }
 
