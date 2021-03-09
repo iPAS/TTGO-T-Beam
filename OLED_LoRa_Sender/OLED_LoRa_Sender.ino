@@ -4,10 +4,13 @@
 #include "SSD1306.h"
 #include "images.h"
 
-// #define TBEAM_V1
 
-#ifndef TBEAM_V1
-#define LED_IO 14  // 4 -- V1.0
+// T-Beam version selection. Differnt version has different hardware design.
+#define TBEAM_V07
+
+
+#ifdef TBEAM_V07
+#define LED_IO 14
 #else
 #define LED_IO 4
 #endif
