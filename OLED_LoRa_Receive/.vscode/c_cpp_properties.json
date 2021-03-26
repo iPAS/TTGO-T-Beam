@@ -114,6 +114,7 @@
                 "/home/ipas/Workspace/Arduino/hardware/espressif/esp32/libraries/Wire/src",
                 "/home/ipas/Workspace/Arduino/libraries/TinyGPSPlus/src",
                 "/home/ipas/Workspace/Arduino/libraries/AXP202X_Library/src",
+                "/home/ipas/Workspace/Arduino/hardware/espressif/esp32/libraries/BluetoothSerial/src",
                 "/home/ipas/Workspace/Arduino/hardware/espressif/esp32/tools/xtensa-esp32-elf/xtensa-esp32-elf/include/c++/5.2.0",
                 "/home/ipas/Workspace/Arduino/hardware/espressif/esp32/tools/xtensa-esp32-elf/xtensa-esp32-elf/include/c++/5.2.0/xtensa-esp32-elf",
                 "/home/ipas/Workspace/Arduino/hardware/espressif/esp32/tools/xtensa-esp32-elf/xtensa-esp32-elf/include/c++/5.2.0/backward",

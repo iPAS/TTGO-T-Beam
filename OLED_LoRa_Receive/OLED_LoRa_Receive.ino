@@ -5,6 +5,7 @@
 #include "images.h"
 #include <TinyGPS++.h>
 #include <axp20x.h>
+#include <BluetoothSerial.h>
 
 
 //#define BAND    868E6
@@ -44,6 +45,9 @@ static uint8_t gps_rx;
 TinyGPSPlus gps;
 String gps_datetime = "@ --";
 String gps_loc  = "SAT --, LAT --, LON --, ALT --";
+
+
+BluetoothSerial bt;
 
 
 AXP20X_Class axp;
@@ -98,7 +102,11 @@ void lora_data() {
 
     display.display();
 
-    Serial.println(gps_datetime + ", " + gps_loc + ", " + rssi + ", " + snr + ", " + packet);
+    String str = gps_datetime + ", " + gps_loc + ", " + rssi + ", " + snr + ", " + packet;
+    Serial.println(str);
+    if (bt.connected()) {
+        bt.println(str);
+    }
 }
 
 void cbk(int packetSize) {
@@ -163,6 +171,10 @@ void setup() {
 
     // LoRa
     lora_setup();
+
+
+    // Bluetooth-Serial
+    bt.begin("ESP32-LoRa-Receiver"); //Name of your Bluetooth Signal
 
 
     // GPS
