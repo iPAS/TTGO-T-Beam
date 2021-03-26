@@ -27,13 +27,6 @@
             "name": "Arduino",
             "compilerPath": "/home/ipas/Workspace/Arduino/hardware/espressif/esp32/tools/xtensa-esp32-elf/bin/xtensa-esp32-elf-g++",
             "compilerArgs": [
-                "-u",
-                "--language-force=c++",
-                "-f",
-                "-",
-                "--c++-kinds=svpf",
-                "--fields=KSTtzns",
-                "--line-directives",
                 "-std=gnu++11",
                 "-Wpointer-arith",
                 "-fexceptions",
