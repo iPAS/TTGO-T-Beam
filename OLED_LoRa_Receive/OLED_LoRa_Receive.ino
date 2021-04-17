@@ -87,7 +87,7 @@ void lora_setup() {
                       // Else if gain is from 1 to 6, AGC will be disabled and LNA gain will be used.
 
     // LoRa.onReceive(cbk);
-    LoRa.receive();
+    LoRa.receive();  // Receiving while in the main loop instead of callback function -- cbk.
     Serial.println("LoRa ok");
 }
 
